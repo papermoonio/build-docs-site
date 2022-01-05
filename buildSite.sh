@@ -1,5 +1,26 @@
 #!/bin/bash
+
+usage() { echo "Usage: $0 [-f] [-c \"<cn_branch>\"]" 1>&2; exit 0; }
+
 force=0
+CNBRANCH="master"
+ESBRANCH="master"
+FRBRANCH="master"
+RUBRANCH="master"
+while getopts ":fc:" arg; do
+    case "${arg}" in
+        f)
+            force=1
+            ;;
+        c)
+            CNBRANCH=${OPTARG}
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+
 ORIGINPATH=$PWD
 MKDOCSPATH=$ORIGINPATH/moonbeam-mkdocs
 MKDOCSLEGACYPATH=$ORIGINPATH/moonbeam-mkdocs-legacy
@@ -12,13 +33,12 @@ LEGACY_MKDOCS="e84e20d0bb83a811efa414adba01e5b75e970245"
 
 printf "\n%s\n\n" "======== Moonbeam Docs Static Site Builder ========"
 
-# Check force flag
-[ ! -z $1 ] && [ $1 == '-f' ] && force=1
 
 # Define Revamped and Legacy Sites
 REVAMP_LG=("cn")
 LEGACY_LG=("es" "fr" "ru")
 ML_SITES=(${REVAMP_LG[@]} ${LEGACY_LG[@]})
+ML_BRANCH=($CNBRANCH $ESBRANCH $FRBRANCH $RUBRANCH)
 
 # Check if moonbeam-mkdocs exists
 # If not, clones the repo (requires SSH Cloning)
@@ -70,11 +90,11 @@ if [ ! -d $STATICPATH ] || [ $force == 1 ]; then
 fi
 
 # ML Steps
-for LANGUAGE in "${ML_SITES[@]}"
+for i in "${!ML_SITES[@]}"
 do
-  printf "\n\n%s\n" "-------- Moonbeam Docs $LANGUAGE repo --------"
+  printf "\n\n%s\n" "-------- Moonbeam Docs ${ML_SITES[i]} repo --------"
   # This is the static language folder
-  TMPSTATICML=$STATICPATH/$LANGUAGE
+  TMPSTATICML=$STATICPATH/${ML_SITES[i]}
   # Check and creat the static folder inside the static site
   if [ ! -d $TMPSTATICML ]; then
     printf "%s\n" "----> Creating static folder inside moonbeam-docs static"
@@ -84,16 +104,16 @@ do
 
   # Create each ML mkdocs directory
   # This is the mkdocs language folder
-  TMPBUILDML=$MKDOCSPATH-$LANGUAGE
+  TMPBUILDML=$MKDOCSPATH-${ML_SITES[i]}
   if [ ! -d $TMPBUILDML ]; then
-    printf "%s\n" "----> Creating mkdocs-$LANGUAGE folder"
+    printf "%s\n" "----> Creating mkdocs-${ML_SITES[i]} folder"
     mkdir $TMPBUILDML
   fi
 
   # Create symlinks for mkdocs
   # This symlink depends if legacy or revamp
   printf "%s\n" "----> Creating material-overrides symlinks"
-  if [[ " ${REVAMP_LG[*]} " =~ " ${LANGUAGE} " ]]; 
+  if [[ " ${REVAMP_LG[*]} " =~ " ${ML_SITES[i]} " ]]; 
   then
     [ ! -d $TMPBUILDML/material-overrides ] && cp -Rs $MKDOCSPATH/material-overrides/ $TMPBUILDML
   else
@@ -103,22 +123,22 @@ do
   # Copy the ML mkdocs specific content
   # This symlink depends if legacy or revamp
   printf "%s\n" "----> Creating mkdocs.yml symlink"
-  if [[ " ${REVAMP_LG[*]} " =~ " ${LANGUAGE} " ]]; 
+  if [[ " ${REVAMP_LG[*]} " =~ " ${ML_SITES[i]} " ]]; 
   then
-    [ ! -f $TMPBUILDML/mkdocs.yml ] && cp -Rsf $MKDOCSPATH/mkdocs-$LANGUAGE/* $TMPBUILDML
+    [ ! -f $TMPBUILDML/mkdocs.yml ] && cp -Rsf $MKDOCSPATH/mkdocs-${ML_SITES[i]}/* $TMPBUILDML
   else
-    [ ! -f $TMPBUILDML/mkdocs.yml ] && cp -Rsf $MKDOCSLEGACYPATH/mkdocs-$LANGUAGE/* $TMPBUILDML
+    [ ! -f $TMPBUILDML/mkdocs.yml ] && cp -Rsf $MKDOCSLEGACYPATH/mkdocs-${ML_SITES[i]}/* $TMPBUILDML
   fi
 
   # Clone the corresponding moobeam-docs-ML
   cd $TMPBUILDML
-  TMPDOCSML=$TMPBUILDML/moonbeam-docs-$LANGUAGE
+  TMPDOCSML=$TMPBUILDML/moonbeam-docs-${ML_SITES[i]}
   if [ ! -d $TMPDOCSML ]
   then
-    printf "%s\n" "----> Cloning moonbeam-docs-$LANGUAGE repo"
-    git clone git@github.com:PureStake/moonbeam-docs-$LANGUAGE.git
+    printf "%s\n" "----> Cloning moonbeam-docs-${ML_SITES[i]} repo"
+    git clone git@github.com:PureStake/moonbeam-docs-${ML_SITES[i]}.git -b ${ML_BRANCH[i]}
   else
-    printf "%s\n" "----> No cloning needed, pulling latest changes from moonbeam-docs-$LANGUAGE"
+    printf "%s\n" "----> No cloning needed, pulling latest changes from moonbeam-docs-${ML_SITES[i]}"
     cd $TMPDOCSML
     git merge origin/master
   fi
@@ -126,7 +146,7 @@ do
   # Create Symlinks to moonbeam-docs
   # These symlinks depends if legacy or revamp
   printf "%s\n" "----> Creating symlinks for files inside moonbeam-docs"
-  if [[ " ${REVAMP_LG[*]} " =~ " ${LANGUAGE} " ]]; 
+  if [[ " ${REVAMP_LG[*]} " =~ " ${ML_SITES[i]} " ]]; 
   then
     [ ! -L $TMPDOCSML/.gitmodules ] && ln -s $DOCSPATH/.gitmodules $TMPDOCSML/.gitmodules
     [ ! -L $TMPDOCSML/variables.yml ] && ln -s $DOCSPATH/variables.yml $TMPDOCSML/variables.yml
@@ -144,7 +164,7 @@ do
   fi
 
   # Build each of the ML sites
-  printf "%s\n" "----> Building the static $LANGUAGE site"
+  printf "%s\n" "----> Building the static ${ML_SITES[i]} site"
   cd $TMPBUILDML
   mkdocs build -d $TMPSTATICML --clean
 
