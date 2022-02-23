@@ -3,7 +3,7 @@
 usage() { echo "Usage: $0 [-f] [-c \"<cn_branch>\"]" 1>&2; exit 0; }
 
 force=0
-CNBRANCH="master"
+CNBRANCH="fix-snippets"
 while getopts ":fc:" arg; do
     case "${arg}" in
         f)
@@ -38,14 +38,14 @@ if [ ! -d $MKDOCSPATH ] || [ $force == 1 ];
 then
   if [ -d "$MKDOCSPATH" ]; then rm -Rf $MKDOCSPATH; fi
   printf "%s\n" "----> Cloning moonbeam-mkdocs Repo"
-  git clone git@github.com:PureStake/moonbeam-mkdocs.git
+  git clone --single-branch --branch fix-snippets git@github.com:PureStake/moonbeam-mkdocs.git
   cd ..
 fi
 
 # Pull latests changes from master
 cd $MKDOCSPATH
 printf "%s\n\n\n" "--> Pulling latest moonbeam-mkdocs changes"
-git merge origin/master
+git merge origin/fix-snippets
 
 # Get moonbeam-docs init/update submodules, and build static site
 printf "\n\n%s\n\n" "-------- Moonbeam Docs repo --------"
@@ -53,12 +53,12 @@ if [ ! -d $DOCSPATH ] || [ $force == 1 ];
 then
   if [ -d "$DOCSPATH" ]; then rm -Rf $DOCSPATH; fi
   printf "%s\n" "----> Cloning moonbeam-docs repo"
-  git clone git@github.com:PureStake/moonbeam-docs.git
+  git clone --single-branch --branch fix-snippets git@github.com:PureStake/moonbeam-docs.git
   cd ..
 else
   printf "%s\n" "----> No cloning needed, pulling latest changes from moonbeam-docs"
   cd $DOCSPATH
-  git merge origin/master
+  git merge origin/fix-snippets
   cd ..
 fi
 
@@ -108,14 +108,14 @@ do
   # Clone the corresponding moobeam-docs-ML
   cd $TMPBUILDML
   TMPDOCSML=$TMPBUILDML/moonbeam-docs-${ML_SITES[i]}
-  if [ ! -d $TMPDOCSML ]
+  if [ -d $TMPDOCSML ]
   then
     printf "%s\n" "----> Cloning moonbeam-docs-${ML_SITES[i]} repo"
     git clone git@github.com:PureStake/moonbeam-docs-${ML_SITES[i]}.git -b ${ML_BRANCH[i]}
   else
     printf "%s\n" "----> No cloning needed, pulling latest changes from moonbeam-docs-${ML_SITES[i]}"
     cd $TMPDOCSML
-    git merge origin/master
+    git merge origin/fix-snippets
   fi
   
   # Create Symlinks to moonbeam-docs
@@ -124,7 +124,7 @@ do
   [ ! -L $TMPDOCSML/variables.yml ] && ln -s $DOCSPATH/variables.yml $TMPDOCSML/variables.yml
   [ ! -L $TMPDOCSML/images ] && ln -s $DOCSPATH/images $TMPDOCSML/images
   [ ! -L $TMPDOCSML/js ] && ln -s $DOCSPATH/js $TMPDOCSML/js
-  [ ! -L $TMPDOCSML/snippets/code ] && ln -s $DOCSPATH/snippets/code $TMPDOCSML/snippets/code
+  [ ! -L $TMPDOCSML/.snippets/code ] && ln -s $DOCSPATH/.snippets/code $TMPDOCSML/.snippets/code
 
 
   # Build each of the ML sites
