@@ -1,14 +1,23 @@
 #!/bin/bash
 
-usage() { echo "Usage: $0 [-f] [-c \"<cn_branch>\"]" 1>&2; exit 0; }
+usage() { echo "Usage: $0 [-f] [-m \"<mkdocs_branch>\"] [-e \"<en_branch>\"] [-c \"<cn_branch>\"]" 1>&2; exit 0; }
 
 force=0
+ENBRANCH="master"
 CNBRANCH="master"
-while getopts ":fc:" arg; do
+MKDOCSBRANCH="master"
+while getopts "fm:e:c:" arg; do
     case "${arg}" in
         f)
             force=1
 
+            ;;
+        m)
+            MKDOCSBRANCH=${OPTARG}
+
+            ;;
+        e)
+            ENBRANCH=${OPTARG}
             ;;
         c)
             CNBRANCH=${OPTARG}
@@ -26,7 +35,6 @@ STATICPATH=$ORIGINPATH/moonbeam-docs-static
 
 printf "\n%s\n\n" "======== Moonbeam Docs Static Site Builder ========"
 
-
 # Define Languages
 ML_SITES=("cn")
 ML_BRANCH=($CNBRANCH)
@@ -37,8 +45,8 @@ printf "%s\n" "-------- Mkdocs Repo --------"
 if [ ! -d $MKDOCSPATH ] || [ $force == 1 ];
 then
   if [ -d "$MKDOCSPATH" ]; then rm -Rf $MKDOCSPATH; fi
-  printf "%s\n" "----> Cloning moonbeam-mkdocs Repo"
-  git clone git@github.com:PureStake/moonbeam-mkdocs.git
+  printf "%s\n" "----> Cloning moonbeam-mkdocs Repo - branch ${MKDOCSBRANCH}"
+  git clone git@github.com:PureStake/moonbeam-mkdocs.git -b ${MKDOCSBRANCH}
   cd ..
 fi
 
@@ -52,13 +60,14 @@ printf "\n\n%s\n\n" "-------- Moonbeam Docs repo --------"
 if [ ! -d $DOCSPATH ] || [ $force == 1 ];
 then
   if [ -d "$DOCSPATH" ]; then rm -Rf $DOCSPATH; fi
-  printf "%s\n" "----> Cloning moonbeam-docs repo"
-  git clone git@github.com:PureStake/moonbeam-docs.git
+  printf "%s\n" "----> Cloning moonbeam-docs repo - branch ${ENBRANCH} "
+  git clone git@github.com:PureStake/moonbeam-docs.git -b ${ENBRANCH}
   cd ..
 else
   printf "%s\n" "----> No cloning needed, pulling latest changes from moonbeam-docs"
   cd $DOCSPATH
   git merge origin/master
+  git checkout -b ${ENBRANCH}
   cd ..
 fi
 
@@ -110,7 +119,7 @@ do
   TMPDOCSML=$TMPBUILDML/moonbeam-docs-${ML_SITES[i]}
   if [ ! -d $TMPDOCSML ]
   then
-    printf "%s\n" "----> Cloning moonbeam-docs-${ML_SITES[i]} repo"
+    printf "%s\n" "----> Cloning moonbeam-docs-${ML_SITES[i]} repo - branch ${ML_BRANCH[i]} "
     git clone git@github.com:PureStake/moonbeam-docs-${ML_SITES[i]}.git -b ${ML_BRANCH[i]}
   else
     printf "%s\n" "----> No cloning needed, pulling latest changes from moonbeam-docs-${ML_SITES[i]}"

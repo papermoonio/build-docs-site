@@ -25,7 +25,7 @@ With the right execution permssions run:
 ./buildSite.sh
 ```
 
-You can also provide the flag `-f` to force a new build.
+You can also provide the flag `-f` to force a new build. Or `-m "<branch_name"` for a specific branch in the MkDocs repo, `-e  "<branch_name>"` and/or `-c "<branch_name>"` to build a specific branch in the EN and CN repos.
 
 ## Serving the Static Site
 
