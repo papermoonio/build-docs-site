@@ -61,7 +61,7 @@ if [ ! -d $DOCSPATH ] || [ $force == 1 ];
 then
   if [ -d "$DOCSPATH" ]; then rm -Rf $DOCSPATH; fi
   printf "%s\n" "----> Cloning moonbeam-docs repo - branch ${ENBRANCH} "
-  git clone git@github.com:PureStake/moonbeam-docs.git -b ${ENBRANCH}
+  git clone https://github.com/PureStake/moonbeam-docs -b ${ENBRANCH}
   cd ..
 else
   printf "%s\n" "----> No cloning needed, pulling latest changes from moonbeam-docs"
@@ -120,7 +120,7 @@ do
   if [ ! -d $TMPDOCSML ]
   then
     printf "%s\n" "----> Cloning moonbeam-docs-${ML_SITES[i]} repo - branch ${ML_BRANCH[i]} "
-    git clone git@github.com:PureStake/moonbeam-docs-${ML_SITES[i]}.git -b ${ML_BRANCH[i]}
+    git clone https://github.com/PureStake/moonbeam-docs-${ML_SITES[i]}.git -b ${ML_BRANCH[i]}
   else
     printf "%s\n" "----> No cloning needed, pulling latest changes from moonbeam-docs-${ML_SITES[i]}"
     cd $TMPDOCSML
