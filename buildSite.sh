@@ -133,7 +133,7 @@ do
   [ ! -L $TMPDOCSML/variables.yml ] && ln -s $DOCSPATH/variables.yml $TMPDOCSML/variables.yml
   [ ! -L $TMPDOCSML/images ] && ln -s $DOCSPATH/images $TMPDOCSML/images
   [ ! -L $TMPDOCSML/js ] && ln -s $DOCSPATH/js $TMPDOCSML/js
-  [ ! -L $TMPDOCSML/snippets/code ] && ln -s $DOCSPATH/snippets/code $TMPDOCSML/snippets/code
+  [ ! -L $TMPDOCSML/.snippets/code ] && ln -s $DOCSPATH/.snippets/code $TMPDOCSML/.snippets/code
 
 
   # Build each of the ML sites
