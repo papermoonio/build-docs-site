@@ -44,6 +44,12 @@ npm i
 Then you can serve the static site in port `8000` with the following command:
 
 ```
+yarn start
+```
+
+Or you can run the command manually with:
+
+```
 npx http-server ./moonbeam-docs-static/ -p 8000
 ```
 
