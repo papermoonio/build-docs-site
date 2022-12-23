@@ -105,13 +105,21 @@ do
   # Create symlinks for mkdocs
   # This symlink depends if legacy or revamp
   printf "%s\n" "----> Creating material-overrides symlinks"
-  [ ! -d $TMPBUILDML/material-overrides ] && cp -Rs $MKDOCSPATH/material-overrides/ $TMPBUILDML
- 
+  OS=$(uname)
+  if [ "$OS" = "Linux" ]; then
+    [ ! -d $TMPBUILDML/material-overrides ] && cp -Rs $MKDOCSPATH/material-overrides/ $TMPBUILDML
+  else
+    [ ! -d $TMPBUILDML/material-overrides ] && gcp -Rs $MKDOCSPATH/material-overrides/ $TMPBUILDML
+  fi 
 
   # Copy the ML mkdocs specific content
   # This symlink depends if legacy or revamp
   printf "%s\n" "----> Creating mkdocs.yml symlink"
-  [ ! -f $TMPBUILDML/mkdocs.yml ] && cp -Rsf $MKDOCSPATH/mkdocs-${ML_SITES[i]}/* $TMPBUILDML
+  if [ "$OS" = "Linux" ]; then
+    [ ! -f $TMPBUILDML/mkdocs.yml ] && cp -Rsf $MKDOCSPATH/mkdocs-${ML_SITES[i]}/* $TMPBUILDML
+  else
+    [ ! -f $TMPBUILDML/mkdocs.yml ] && gcp -Rsf $MKDOCSPATH/mkdocs-${ML_SITES[i]}/* $TMPBUILDML
+  fi 
 
 
   # Clone the corresponding moobeam-docs-ML
