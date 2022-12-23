@@ -4,7 +4,7 @@ This repo helps you build the Moonbeam Docs site (all Languages) locally as a st
 
 It uses a bash script to build the entire static structure, and then the npm package `http-server` to serve the static site locally.
 
-**If you are using MacOS you should install `gcp` package by running `brew install gcp`! The check is done via `uname` and the return value is compared with `Linux` for Ubuntu.**
+**If you are using MacOS you should install `gcp` package by running `brew install coreutils`! The check is done via `uname` and the return value is compared with `Linux` for Ubuntu.**
 
 ## Getting Started - Building the File Structure
 
