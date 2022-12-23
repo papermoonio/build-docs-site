@@ -149,17 +149,35 @@ do
   cd $TMPBUILDML
   mkdocs build -d $TMPSTATICML --clean
 
-  printf "%s\n\n\n" "----> Post processing static"
-  # fix relative links to include language subdir
-  find $TMPSTATICML -type f -name index.html -exec sed -i "s|href=\"\/|href=\"\/${ML_SITES[i]}\/|g" '{}' \;
-  # update instances where the language is duplicated
-  find $TMPSTATICML -type f -name index.html -exec sed -i "s|href=\"\/${ML_SITES[i]}/${ML_SITES[i]}/|href=\"\/${ML_SITES[i]}\/|g" '{}' \;
-  # temporary patch to fix relative path of the assets to 
-  # an absolute path in multi language folders
-  find $TMPSTATICML -type f -name index.html -exec sed -i "s|href=\"\/${ML_SITES[i]}\/assets\/|href=\"\/assets\/|g" '{}' \;
-  # remove images folder of the static sites as they are not necessary
-  rm -rf $TMPSTATICML/images/
-  ### Making all external source links HTTPS
-  find $STATICPATH -type f -name "*.html" -exec sed -i "s|href=\"\/\/|href=\"https:\/\/|g" '{}' \;
-  find $STATICPATH -type f -name "*.html" -exec sed -i "s|src=\"\/\/|src=\"https:\/\/|g" '{}' \;
+
+  if [ "$OS" = "Linux" ]; then
+    printf "%s\n\n\n" "----> Post processing static (Linux)"
+     # fix relative links to include language subdir
+    find $TMPSTATICML -type f -name index.html -exec sed -i "s|href=\"\/|href=\"\/${ML_SITES[i]}\/|g" '{}' \;
+    # update instances where the language is duplicated
+    find $TMPSTATICML -type f -name index.html -exec sed -i "s|href=\"\/${ML_SITES[i]}/${ML_SITES[i]}/|href=\"\/${ML_SITES[i]}\/|g" '{}' \;
+    # temporary patch to fix relative path of the assets to 
+    # an absolute path in multi language folders
+    find $TMPSTATICML -type f -name index.html -exec sed -i "s|href=\"\/${ML_SITES[i]}\/assets\/|href=\"\/assets\/|g" '{}' \;
+    # remove images folder of the static sites as they are not necessary
+    rm -rf $TMPSTATICML/images/
+    ### Making all external source links HTTPS
+    find $STATICPATH -type f -name "*.html" -exec sed -i "s|href=\"\/\/|href=\"https:\/\/|g" '{}' \;
+    find $STATICPATH -type f -name "*.html" -exec sed -i "s|src=\"\/\/|src=\"https:\/\/|g" '{}' \;
+  else
+    printf "%s\n\n\n" "----> Post processing static (Mac)"
+     # fix relative links to include language subdir
+    find $TMPSTATICML -type f -name index.html -exec gsed -i "s|href=\"\/|href=\"\/${ML_SITES[i]}\/|g" '{}' \;
+    # update instances where the language is duplicated
+    find $TMPSTATICML -type f -name index.html -exec gsed -i "s|href=\"\/${ML_SITES[i]}/${ML_SITES[i]}/|href=\"\/${ML_SITES[i]}\/|g" '{}' \;
+    # temporary patch to fix relative path of the assets to 
+    # an absolute path in multi language folders
+    find $TMPSTATICML -type f -name index.html -exec gsed -i "s|href=\"\/${ML_SITES[i]}\/assets\/|href=\"\/assets\/|g" '{}' \;
+    # remove images folder of the static sites as they are not necessary
+    rm -rf $TMPSTATICML/images/
+    ### Making all external source links HTTPS
+    find $STATICPATH -type f -name "*.html" -exec gsed -i "s|href=\"\/\/|href=\"https:\/\/|g" '{}' \;
+    find $STATICPATH -type f -name "*.html" -exec gsed -i "s|src=\"\/\/|src=\"https:\/\/|g" '{}' \;
+  fi 
+
 done
