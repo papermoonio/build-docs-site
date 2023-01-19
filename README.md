@@ -27,7 +27,13 @@ With the right execution permssions run:
 ./buildSite.sh
 ```
 
-You can also provide the flag `-f` to force a new build. Or `-m "<branch_name"` for a specific branch in the MkDocs repo, `-e  "<branch_name>"` and/or `-c "<branch_name>"` to build a specific branch in the EN and CN repos.
+You can also provide the flag:
+ - `-f` to force a new build
+ - `-m "<branch_name"` for a specific branch in the MkDocs repo
+ - `-e  "<branch_name>"` to build a specific branch in the EN repo, default is `master`
+ - `-o "<en_owner>"` to build from a specific `moonbeam-docs` repo owner, default is `PureStake`
+ - `-c "<branch_name>"` to build a specific branch in the CN repo
+ - `-s "<cn_owner>"` to build from a specific `moonbeam-docs-cn` repo owner, default is `PureStake`
 
 ## Serving the Static Site
 

@@ -1,10 +1,12 @@
 #!/bin/bash
 
-usage() { echo "Usage: $0 [-f] [-m \"<mkdocs_branch>\"] [-e \"<en_branch>\"] [-c \"<cn_branch>\"]" 1>&2; exit 0; }
+usage() { echo "Usage: $0 [-f] [-m \"<mkdocs_branch>\"] [-e \"<en_branch>\"] [-o \"<en_owner>\"] [-c \"<cn_branch>\"] [-c \"<cn_owner>\"]" 1>&2; exit 0; }
 
 force=0
 ENBRANCH="master"
+ENOWNER="PureStake"
 CNBRANCH="master"
+CNOWNER="PureStake"
 MKDOCSBRANCH="master"
 while getopts "fm:e:c:" arg; do
     case "${arg}" in
@@ -19,8 +21,14 @@ while getopts "fm:e:c:" arg; do
         e)
             ENBRANCH=${OPTARG}
             ;;
+        o)
+            ENOWNER=${OPTARG}
+            ;;
         c)
             CNBRANCH=${OPTARG}
+            ;;
+        c)
+            CNOWNER=${OPTARG}
             ;;
         *)
             usage
@@ -38,6 +46,7 @@ printf "\n%s\n\n" "======== Moonbeam Docs Static Site Builder ========"
 # Define Languages
 ML_SITES=("cn")
 ML_BRANCH=($CNBRANCH)
+ML_OWNER=($CNOWNER)
 
 # Check if moonbeam-mkdocs exists
 # If not, clones the repo (requires SSH Cloning)
@@ -61,7 +70,7 @@ if [ ! -d $DOCSPATH ] || [ $force == 1 ];
 then
   if [ -d "$DOCSPATH" ]; then rm -Rf $DOCSPATH; fi
   printf "%s\n" "----> Cloning moonbeam-docs repo - branch ${ENBRANCH} "
-  git clone https://github.com/PureStake/moonbeam-docs -b ${ENBRANCH}
+  git clone https://github.com/${ENOWNER}/moonbeam-docs -b ${ENBRANCH}
   cd ..
 else
   printf "%s\n" "----> No cloning needed, pulling latest changes from moonbeam-docs"
@@ -128,7 +137,7 @@ do
   if [ ! -d $TMPDOCSML ]
   then
     printf "%s\n" "----> Cloning moonbeam-docs-${ML_SITES[i]} repo - branch ${ML_BRANCH[i]} "
-    git clone https://github.com/PureStake/moonbeam-docs-${ML_SITES[i]}.git -b ${ML_BRANCH[i]}
+    git clone https://github.com/${ML_OWNER[i]}/moonbeam-docs-${ML_SITES[i]}.git -b ${ML_BRANCH[i]}
   else
     printf "%s\n" "----> No cloning needed, pulling latest changes from moonbeam-docs-${ML_SITES[i]}"
     cd $TMPDOCSML
