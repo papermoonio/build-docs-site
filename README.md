@@ -29,10 +29,10 @@ With the right execution permssions run:
 
 You can also provide the flag:
  - `-f` to force a new build
- - `-m "<branch_name"` for a specific branch in the MkDocs repo
+ - `-m "<branch_name"` for a specific branch in the MkDocs repo, default is `master`
  - `-e  "<branch_name>"` to build a specific branch in the EN repo, default is `master`
  - `-o "<en_owner>"` to build from a specific `moonbeam-docs` repo owner, default is `PureStake`
- - `-c "<branch_name>"` to build a specific branch in the CN repo
+ - `-c "<branch_name>"` to build a specific branch in the CN repo, default is `master`
  - `-s "<cn_owner>"` to build from a specific `moonbeam-docs-cn` repo owner, default is `PureStake`
 
 ## Serving the Static Site
