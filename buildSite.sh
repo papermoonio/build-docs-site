@@ -8,7 +8,7 @@ ENOWNER="PureStake"
 CNBRANCH="master"
 CNOWNER="PureStake"
 MKDOCSBRANCH="master"
-while getopts "fm:e:c:" arg; do
+while getopts "fm:e:o:c:s" arg; do
     case "${arg}" in
         f)
             force=1
@@ -69,7 +69,7 @@ printf "\n\n%s\n\n" "-------- Moonbeam Docs repo --------"
 if [ ! -d $DOCSPATH ] || [ $force == 1 ];
 then
   if [ -d "$DOCSPATH" ]; then rm -Rf $DOCSPATH; fi
-  printf "%s\n" "----> Cloning moonbeam-docs repo - branch ${ENBRANCH} "
+  printf "%s\n" "----> Cloning moonbeam-docs from repo owner ${ENOWNER} - branch ${ENBRANCH}"
   git clone https://github.com/${ENOWNER}/moonbeam-docs -b ${ENBRANCH}
   cd ..
 else
@@ -136,7 +136,7 @@ do
   TMPDOCSML=$TMPBUILDML/moonbeam-docs-${ML_SITES[i]}
   if [ ! -d $TMPDOCSML ]
   then
-    printf "%s\n" "----> Cloning moonbeam-docs-${ML_SITES[i]} repo - branch ${ML_BRANCH[i]} "
+    printf "%s\n" "----> Cloning moonbeam-docs-${ML_SITES[i]} repo owner ${ML_OWNER[i]} - branch ${ML_BRANCH[i]}"
     git clone https://github.com/${ML_OWNER[i]}/moonbeam-docs-${ML_SITES[i]}.git -b ${ML_BRANCH[i]}
   else
     printf "%s\n" "----> No cloning needed, pulling latest changes from moonbeam-docs-${ML_SITES[i]}"
