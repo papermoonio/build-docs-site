@@ -1,5 +1,5 @@
 {
-  "name": "build-doc-site",
+  "name": "build-moonbeam-docs-site",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
