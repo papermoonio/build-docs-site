@@ -57,12 +57,15 @@ then
   printf "%s\n" "----> Cloning moonbeam-mkdocs Repo - branch ${MKDOCSBRANCH}"
   git clone git@github.com:PureStake/moonbeam-mkdocs.git -b ${MKDOCSBRANCH}
   cd ..
+else
+  # Pull latests changes from master
+  cd $MKDOCSPATH
+  printf "%s\n\n\n" "--> Pulling latest moonbeam-mkdocs changes"
+  git merge origin/master
+  c ..
 fi
 
-# Pull latests changes from master
 cd $MKDOCSPATH
-printf "%s\n\n\n" "--> Pulling latest moonbeam-mkdocs changes"
-git merge origin/master
 
 # Get moonbeam-docs init/update submodules, and build static site
 printf "\n\n%s\n\n" "-------- Moonbeam Docs repo --------"

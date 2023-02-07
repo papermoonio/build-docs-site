@@ -8,6 +8,8 @@ It uses a bash script to build the entire static structure, and then the npm pac
 
 ## Getting Started - Building the File Structure
 
+**This repo asumes you have all the dependencies of the `moonbeam-mkdocs` repo installed!**
+
 To get started clone the repo (via SSH as it is private):
 
 ```
