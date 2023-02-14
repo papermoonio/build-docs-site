@@ -55,7 +55,7 @@ if [ ! -d $MKDOCSPATH ] || [ $force == 1 ];
 then
   if [ -d "$MKDOCSPATH" ]; then rm -Rf $MKDOCSPATH; fi
   printf "%s\n" "----> Cloning moonbeam-mkdocs Repo - branch ${MKDOCSBRANCH}"
-  git clone git@github.com:PureStake/moonbeam-mkdocs.git -b ${MKDOCSBRANCH}
+  git clone https://github.com/PureStake/moonbeam-mkdocs -b ${MKDOCSBRANCH}
   cd ..
 else
   # Pull latests changes from master
