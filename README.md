@@ -13,8 +13,8 @@ It uses a bash script to build the entire static structure, and then the npm pac
 To get started clone the repo (via SSH as it is private):
 
 ```
-git clone git@github.com:albertov19/BuildDocsSite.git
-cd BuildDocsSite
+git clone https://github.com/albertov19/build-moonbeam-docs-site/
+cd build-moonbeam-docs-site
 ```
 
 Then you can run the bash file `buildSite.sh` - You might need to change execution permissions by doing:
