@@ -1,14 +1,14 @@
 #!/bin/bash
 
-usage() { echo "Usage: $0 [-f] [-m \"<mkdocs_branch>\"] [-e \"<en_branch>\"] [-o \"<en_owner>\"] [-c \"<cn_branch>\"] [-c \"<cn_owner>\"]" 1>&2; exit 0; }
+usage() { echo "Usage: $0 [-f] [-m \"<mkdocs_branch>\"] [-e \"<en_branch>\"] [-o \"<en_owner>\"] [-c \"<cn_branch>\"] [-s \"<cn_owner>\"]" 1>&2; exit 0; }
 
 force=0
 ENBRANCH="master"
-ENOWNER="PureStake"
+ENOWNER="moonbeam-foundation"
 CNBRANCH="master"
-CNOWNER="PureStake"
+CNOWNER="moonbeam-foundation"
 MKDOCSBRANCH="master"
-while getopts "fm:e:o:c:s" arg; do
+while getopts "fm:e:o:c:s:" arg; do
     case "${arg}" in
         f)
             force=1
@@ -27,7 +27,7 @@ while getopts "fm:e:o:c:s" arg; do
         c)
             CNBRANCH=${OPTARG}
             ;;
-        c)
+        s)
             CNOWNER=${OPTARG}
             ;;
         *)
@@ -55,7 +55,7 @@ if [ ! -d $MKDOCSPATH ] || [ $force == 1 ];
 then
   if [ -d "$MKDOCSPATH" ]; then rm -Rf $MKDOCSPATH; fi
   printf "%s\n" "----> Cloning moonbeam-mkdocs Repo - branch ${MKDOCSBRANCH}"
-  git clone https://github.com/PureStake/moonbeam-mkdocs -b ${MKDOCSBRANCH}
+  git clone https://github.com/papermoonio/moonbeam-mkdocs -b ${MKDOCSBRANCH}
   cd ..
 else
   # Pull latests changes from master
@@ -140,7 +140,7 @@ do
   if [ ! -d $TMPDOCSML ]
   then
     printf "%s\n" "----> Cloning moonbeam-docs-${ML_SITES[i]} repo owner ${ML_OWNER[i]} - branch ${ML_BRANCH[i]}"
-    git clone https://github.com/${ML_OWNER[i]}/moonbeam-docs-${ML_SITES[i]}.git -b ${ML_BRANCH[i]}
+    git clone https://github.com/${ML_OWNER[i]}/moonbeam-docs-${ML_SITES[i]} -b ${ML_BRANCH[i]}
   else
     printf "%s\n" "----> No cloning needed, pulling latest changes from moonbeam-docs-${ML_SITES[i]}"
     cd $TMPDOCSML
