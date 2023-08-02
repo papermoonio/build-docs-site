@@ -13,7 +13,7 @@ It uses a bash script to build the entire static structure, and then the npm pac
 To get started clone the repo (via SSH as it is private):
 
 ```
-git clone https://github.com/albertov19/build-moonbeam-docs-site/
+git clone https://github.com/papermoonio/build-moonbeam-docs-site.git
 cd build-moonbeam-docs-site
 ```
 
