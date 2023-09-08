@@ -28,6 +28,11 @@ With the right execution permssions run:
 ```
 ./buildSite.sh
 ```
+If you are a ***Mac*** user, run the following command instead:
+```
+chmod u+x ./buildSiteMac.sh
+./buildSiteMac.sh
+```
 
 You can also provide the flag:
  - `-f` to force a new build
