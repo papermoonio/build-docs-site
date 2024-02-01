@@ -1,6 +1,6 @@
-# Build Moonbeam Docs Site Static Locally
+# Build Mkdocs Based Docs Site Static Locally
 
-This repo helps you build the Moonbeam Docs site (all Languages) locally as a static site.
+This repo helps you build the Mkdocs Based Docs site (all Languages) locally as a static site.
 
 It uses a bash script to build the entire static structure, and then the npm package `http-server` to serve the static site locally.
 
@@ -8,34 +8,36 @@ It uses a bash script to build the entire static structure, and then the npm pac
 
 ## Getting Started - Building the File Structure
 
-**This repo asumes you have all the dependencies of the `moonbeam-mkdocs` repo installed!**
+**This repo assumes you have all the dependencies of the Mkdocs repo installed!**
 
 To get started clone the repo:
 
 ```
-git clone https://github.com/papermoonio/build-moonbeam-docs-site.git
-cd build-moonbeam-docs-site
+git clone https://github.com/papermoonio/build-docs-site.git
+cd build-docs-site
 ```
 
-Then you can run the bash file `buildSite.sh` - You might need to change execution permissions by doing:
+Then you can run the bash file `buildSite.sh` - You might need to change execution permissions by doing the following:
 
 ```
 chmod u+x ./buildSite.sh
 ```
 
-With the right execution permssions run:
+With the right execution permissions, run:
 
 ```
-./buildSite.sh
+./buildSite.sh -d
 ```
+
+Where `-d` can be either `-d moonbeam` or `-d tanssi`. 
 
 You can also provide the flag:
  - `-f` to force a new build
- - `-m "<branch_name"` for a specific branch in the MkDocs repo, default is `master`
- - `-e  "<branch_name>"` to build a specific branch in the EN repo, default is `master`
- - `-o "<en_owner>"` to build from a specific `moonbeam-docs` repo owner, default is `moonbeam-foundation`
- - `-c "<branch_name>"` to build a specific branch in the CN repo, default is `master`
- - `-s "<cn_owner>"` to build from a specific `moonbeam-docs-cn` repo owner, default is `moonbeam-foundation`
+ - `-m "<branch_name"` for a specific branch in the MkDocs repo, default is moonbeam: `master` - tanssi: `main`
+ - `-e  "<branch_name>"` to build a specific branch in the EN repo, default is moonbeam: `master` - tanssi: `main`
+ - `-o "<en_owner>"` to build from a specific `moonbeam-docs` repo owner, default is moonbeam: `moonbeam-foundation` - tanssi: `moondance-labs`
+ - `-c "<branch_name>"` to build a specific branch in the CN repo, default is moonbeam: `master`
+ - `-s "<cn_owner>"` to build from a specific `moonbeam-docs-cn` repo owner, default is moonbeam: `moonbeam-foundation`
 
 For example:
 
