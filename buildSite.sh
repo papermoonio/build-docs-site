@@ -1,22 +1,26 @@
 #!/bin/bash
 
-usage() { echo "Usage: $0 [-f] [-m \"<mkdocs_branch>\"] [-e \"<en_branch>\"] [-o \"<en_owner>\"] [-c \"<cn_branch>\"] [-s \"<cn_owner>\"]" 1>&2; exit 0; }
+usage() { echo "Usage: $0 [-f] [-d <repository>] [-m \"<mkdocs_branch>\"] [-e \"<en_branch>\"] [-o \"<en_owner>\"] [-c \"<cn_branch>\"] [-s \"<cn_owner>\"]" 1>&2; exit 0; }
 
 force=0
-ENBRANCH="master"
-ENOWNER="moonbeam-foundation"
-CNBRANCH="master"
-CNOWNER="moonbeam-foundation"
-MKDOCSBRANCH="master"
-while getopts "fm:e:o:c:s:" arg; do
+repository=""
+ENBRANCH=""
+ENOWNER=""
+CNBRANCH=""
+CNOWNER=""
+MKDOCSBRANCH=""
+
+# Get input variables
+while getopts "fd:m:e:o:c:s:" arg; do
     case "${arg}" in
         f)
             force=1
-
+            ;;
+        d)
+            repository=${OPTARG}
             ;;
         m)
             MKDOCSBRANCH=${OPTARG}
-
             ;;
         e)
             ENBRANCH=${OPTARG}
@@ -36,47 +40,63 @@ while getopts "fm:e:o:c:s:" arg; do
     esac
 done
 
+if [ -z "$repository" ]; then
+    echo "Please provide a repository using the -d flag (moonbeam or tanssi)"
+    usage
+fi
+
+# Set defaults only if the user did not provide a value
+ENBRANCH=${ENBRANCH:-$([ "$repository" == "moonbeam" ] && echo "master" || echo "main")}
+ENOWNER=${ENOWNER:-$([ "$repository" == "moonbeam" ] && echo "moonbeam-foundation" || echo "moondance-labs")}
+CNBRANCH=${CNBRANCH:-$([ "$repository" == "moonbeam" ] && echo "master" || echo "")}
+CNOWNER=${CNOWNER:-$([ "$repository" == "moonbeam" ] && echo "moonbeam-foundation" || echo "")}
+MKDOCSBRANCH=${MKDOCSBRANCH:-$([ "$repository" == "moonbeam" ] && echo "master" || echo "main")}
+
 ORIGINPATH=$PWD
-MKDOCSPATH=$ORIGINPATH/moonbeam-mkdocs
-DOCSPATH=$MKDOCSPATH/moonbeam-docs
-STATICPATH=$ORIGINPATH/moonbeam-docs-static
+MKDOCSPATH=$ORIGINPATH/${repository}-mkdocs
+DOCSPATH=$MKDOCSPATH/${repository}-docs
+STATICPATH=$ORIGINPATH/${repository}-docs-static
 
-printf "\n%s\n\n" "======== Moonbeam Docs Static Site Builder ========"
+printf "\n%s\n\n" "======== Docs Static Site Builder ========"
 
-# Define Languages
-ML_SITES=("cn")
+# Define languages if available
+if [ -n "$CNBRANCH" ] && [ "$CNBRANCH" != "" ]; then
+    ML_SITES=("cn")
+else
+    ML_SITES=()
+fi
 ML_BRANCH=($CNBRANCH)
 ML_OWNER=($CNOWNER)
 
-# Check if moonbeam-mkdocs exists
+# Check if Mkdocs exists
 # If not, clones the repo (requires SSH Cloning)
 printf "%s\n" "-------- Mkdocs Repo --------"
 if [ ! -d $MKDOCSPATH ] || [ $force == 1 ];
 then
   if [ -d "$MKDOCSPATH" ]; then rm -Rf $MKDOCSPATH; fi
-  printf "%s\n" "----> Cloning moonbeam-mkdocs Repo - branch ${MKDOCSBRANCH}"
-  git clone https://github.com/papermoonio/moonbeam-mkdocs -b ${MKDOCSBRANCH}
+  printf "%s\n" "----> Cloning Mkdocs Repo ${repository}-mkdocs - branch ${MKDOCSBRANCH}"
+  git clone https://github.com/papermoonio/${repository}-mkdocs -b ${MKDOCSBRANCH}
   cd ..
 else
   # Pull latests changes from master
   cd $MKDOCSPATH
-  printf "%s\n\n\n" "--> Pulling latest moonbeam-mkdocs changes"
+  printf "%s\n\n\n" "--> Pulling latest Mkdocs changes"
   git merge origin/master
   c ..
 fi
 
 cd $MKDOCSPATH
 
-# Get moonbeam-docs init/update submodules, and build static site
-printf "\n\n%s\n\n" "-------- Moonbeam Docs repo --------"
+# Build static site
+printf "\n\n%s\n\n" "--------  ${repository} Docs repo --------"
 if [ ! -d $DOCSPATH ] || [ $force == 1 ];
 then
   if [ -d "$DOCSPATH" ]; then rm -Rf $DOCSPATH; fi
-  printf "%s\n" "----> Cloning moonbeam-docs from repo owner ${ENOWNER} - branch ${ENBRANCH}"
-  git clone https://github.com/${ENOWNER}/moonbeam-docs -b ${ENBRANCH}
+  printf "%s\n" "----> Cloning Docs from repo owner ${ENOWNER} - branch ${ENBRANCH}"
+  git clone https://github.com/${ENOWNER}/${repository}-docs -b ${ENBRANCH}
   cd ..
 else
-  printf "%s\n" "----> No cloning needed, pulling latest changes from moonbeam-docs"
+  printf "%s\n" "----> No cloning needed, pulling latest changes from ${repository}-docs"
   cd $DOCSPATH
   git merge origin/master
   git checkout -b ${ENBRANCH}
@@ -87,20 +107,20 @@ fi
 cd $MKDOCSPATH
 if [ ! -d $STATICPATH ] || [ $force == 1 ]; then
   if [ -d "$STATICPATH" ]; then rm -Rf $STATICPATH; fi
-  printf "%s\n\n\n" "----> Building static site from moonbeam-docs"
+  printf "%s\n\n\n" "----> Building static site from ${repository}-docs"
   mkdocs build -d $STATICPATH --clean
 fi
 
 # ML Steps
 for i in "${!ML_SITES[@]}"
 do
-  printf "\n\n%s\n" "-------- Moonbeam Docs ${ML_SITES[i]} repo --------"
+  printf "\n\n%s\n" "-------- Docs ${ML_SITES[i]} repo --------"
   # This is the static language folder
   TMPSTATICML=$STATICPATH/${ML_SITES[i]}
   # Check and creat the static folder inside the static site
   if [ ! -d $TMPSTATICML ] || [ $force == 1 ]; then
     if [ -d "$TMPSTATICML" ]; then rm -Rf $TMPSTATICML; fi
-    printf "%s\n" "----> Creating static folder inside moonbeam-docs static"
+    printf "%s\n" "----> Creating static folder inside ${repository}-docs static"
     mkdir $TMPSTATICML
   fi
   #
@@ -134,22 +154,22 @@ do
   fi 
 
 
-  # Clone the corresponding moobeam-docs-ML
+  # Clone the corresponding Docs-ML
   cd $TMPBUILDML
-  TMPDOCSML=$TMPBUILDML/moonbeam-docs-${ML_SITES[i]}
+  TMPDOCSML=$TMPBUILDML/${repository}-docs-${ML_SITES[i]}
   if [ ! -d $TMPDOCSML ]
   then
-    printf "%s\n" "----> Cloning moonbeam-docs-${ML_SITES[i]} repo owner ${ML_OWNER[i]} - branch ${ML_BRANCH[i]}"
-    git clone https://github.com/${ML_OWNER[i]}/moonbeam-docs-${ML_SITES[i]} -b ${ML_BRANCH[i]}
+    printf "%s\n" "----> Cloning ${repository}-docs-${ML_SITES[i]} repo owner ${ML_OWNER[i]} - branch ${ML_BRANCH[i]}"
+    git clone https://github.com/${ML_OWNER[i]}/${repository}-docs-${ML_SITES[i]} -b ${ML_BRANCH[i]}
   else
-    printf "%s\n" "----> No cloning needed, pulling latest changes from moonbeam-docs-${ML_SITES[i]}"
+    printf "%s\n" "----> No cloning needed, pulling latest changes from ${repository}-docs-${ML_SITES[i]}"
     cd $TMPDOCSML
     git merge origin/master
   fi
   
-  # Create Symlinks to moonbeam-docs
+  # Create Symlinks to Docs
   # These symlinks depends if legacy or revamp
-  printf "%s\n" "----> Creating symlinks for files inside moonbeam-docs"
+  printf "%s\n" "----> Creating symlinks for files inside ${repository}-docs"
   [ ! -L $TMPDOCSML/variables.yml ] && ln -s $DOCSPATH/variables.yml $TMPDOCSML/variables.yml
   [ ! -L $TMPDOCSML/images ] && ln -s $DOCSPATH/images $TMPDOCSML/images
   [ ! -L $TMPDOCSML/js ] && ln -s $DOCSPATH/js $TMPDOCSML/js
