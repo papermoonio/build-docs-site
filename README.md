@@ -28,6 +28,11 @@ With the right execution permissions, run:
 ```
 ./buildSite.sh -d
 ```
+If you are a ***Mac*** user, run the following command instead:
+```
+chmod u+x ./buildSiteMac.sh
+./buildSiteMac.sh
+```
 
 Where `-d` can be either `-d moonbeam` or `-d tanssi`. 
 
