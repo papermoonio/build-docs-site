@@ -1,38 +1,38 @@
 #!/bin/bash
 
-usage() { echo "Usage: $0 [-f] [-d <repository>] [-m \"<mkdocs_branch>\"] [-e \"<en_branch>\"] [-o \"<en_owner>\"] [-c \"<cn_branch>\"] [-s \"<cn_owner>\"]" 1>&2; exit 0; }
+usage() { echo "Usage: $0 [-f] [-m <repository>] [-b \"<mkdocs_branch>\"] [-e \"<en_branch>\"] [-o \"<en_DOCS>\"] [-c \"<cn_branch>\"] [-s \"<cn_DOCS>\"]" 1>&2; exit 0; }
 
 force=0
-repository=""
-ENBRANCH=""
-ENOWNER=""
-CNBRANCH=""
-CNOWNER=""
+MKDOCS=""
 MKDOCSBRANCH=""
+ENDOCS=""
+ENBRANCH=""
+CNBRANCH=""
+CNDOCS=""
 
 # Get input variables
-while getopts "fd:m:e:o:c:s:" arg; do
+while getopts "fm:b:o:e:s:c:" arg; do
     case "${arg}" in
         f)
             force=1
             ;;
-        d)
-            repository=${OPTARG}
-            ;;
         m)
+            MKDOCS=${OPTARG}
+            ;;
+        b)
             MKDOCSBRANCH=${OPTARG}
+            ;;
+        o)
+            ENDOCS=${OPTARG}
             ;;
         e)
             ENBRANCH=${OPTARG}
             ;;
-        o)
-            ENOWNER=${OPTARG}
+        s)
+            CNDOCS=${OPTARG}
             ;;
         c)
             CNBRANCH=${OPTARG}
-            ;;
-        s)
-            CNOWNER=${OPTARG}
             ;;
         *)
             usage
@@ -40,22 +40,27 @@ while getopts "fd:m:e:o:c:s:" arg; do
     esac
 done
 
-if [ -z "$repository" ]; then
-    echo "Please provide a repository using the -d flag (moonbeam or tanssi)"
+# Check for mandatory inputs
+if [ -z "$MKDOCS" ] || [ -z "$MKDOCSBRANCH" ] || [ -z "$ENDOCS" ] || [ -z "$ENBRANCH" ]; then
+    echo "Error: Missing mandatory input(s)."
+    echo "The following inputs are required:"
+    echo "  -m <repository> (MKDOCS)"
+    echo "  -b \"<mkdocs_branch>\" (MKDOCSBRANCH)"
+    echo "  -o \"<en_DOCS>\" (ENDOCS)"
+    echo "  -e \"<en_branch>\" (ENBRANCH)"
     usage
 fi
 
-# Set defaults only if the user did not provide a value
-ENBRANCH=${ENBRANCH:-$([ "$repository" == "moonbeam" ] && echo "master" || echo "main")}
-ENOWNER=${ENOWNER:-$([ "$repository" == "moonbeam" ] && echo "moonbeam-foundation" || echo "moondance-labs")}
-CNBRANCH=${CNBRANCH:-$([ "$repository" == "moonbeam" ] && echo "master" || echo "")}
-CNOWNER=${CNOWNER:-$([ "$repository" == "moonbeam" ] && echo "moonbeam-foundation" || echo "")}
-MKDOCSBRANCH=${MKDOCSBRANCH:-$([ "$repository" == "moonbeam" ] && echo "master" || echo "main")}
+# Extract the portion after the last "/" for MKDOCS and ENDOCS
+MKDOCS_NAME=$(basename "$MKDOCS")  # "wormhole-mkdocs"
+ENDOCS_NAME=$(basename "$ENDOCS") # "wormhole-docs"
 
+# Use these extracted names to define paths
 ORIGINPATH=$PWD
-MKDOCSPATH=$ORIGINPATH/${repository}-mkdocs
-DOCSPATH=$MKDOCSPATH/${repository}-docs
-STATICPATH=$ORIGINPATH/${repository}-docs-static
+MKDOCSPATH=$ORIGINPATH/${MKDOCS_NAME}
+DOCSPATH=$MKDOCSPATH/${ENDOCS_NAME}
+STATICPATH=$ORIGINPATH/${ENDOCS_NAME}-static
+
 
 printf "\n%s\n\n" "======== Docs Static Site Builder ========"
 
@@ -66,7 +71,7 @@ else
     ML_SITES=()
 fi
 ML_BRANCH=($CNBRANCH)
-ML_OWNER=($CNOWNER)
+ML_DOCS=($CNDOCS)
 
 # Check if Mkdocs exists
 # If not, clones the repo (requires SSH Cloning)
@@ -74,8 +79,8 @@ printf "%s\n" "-------- Mkdocs Repo --------"
 if [ ! -d $MKDOCSPATH ] || [ $force == 1 ];
 then
   if [ -d "$MKDOCSPATH" ]; then rm -Rf $MKDOCSPATH; fi
-  printf "%s\n" "----> Cloning Mkdocs Repo ${repository}-mkdocs - branch ${MKDOCSBRANCH}"
-  git clone https://github.com/papermoonio/${repository}-mkdocs -b ${MKDOCSBRANCH}
+  printf "%s\n" "----> Cloning Mkdocs Repo ${MKDOCS} - branch ${MKDOCSBRANCH}"
+  git clone https://github.com/${MKDOCS} -b ${MKDOCSBRANCH}
   cd ..
 else
   # Pull latests changes from master
@@ -88,15 +93,15 @@ fi
 cd $MKDOCSPATH
 
 # Build static site
-printf "\n\n%s\n\n" "--------  ${repository} Docs repo --------"
+printf "\n\n%s\n\n" "-------- EN Docs repo --------"
 if [ ! -d $DOCSPATH ] || [ $force == 1 ];
 then
   if [ -d "$DOCSPATH" ]; then rm -Rf $DOCSPATH; fi
-  printf "%s\n" "----> Cloning Docs from repo owner ${ENOWNER} - branch ${ENBRANCH}"
-  git clone https://github.com/${ENOWNER}/${repository}-docs -b ${ENBRANCH}
+  printf "%s\n" "----> Cloning Docs from repo DOCS ${ENDOCS} - branch ${ENBRANCH}"
+  git clone https://github.com/${ENDOCS} -b ${ENBRANCH}
   cd ..
 else
-  printf "%s\n" "----> No cloning needed, pulling latest changes from ${repository}-docs"
+  printf "%s\n" "----> No cloning needed, pulling latest changes from ${ENDOCS}"
   cd $DOCSPATH
   git merge origin/master
   git checkout -b ${ENBRANCH}
@@ -107,7 +112,7 @@ fi
 cd $MKDOCSPATH
 if [ ! -d $STATICPATH ] || [ $force == 1 ]; then
   if [ -d "$STATICPATH" ]; then rm -Rf $STATICPATH; fi
-  printf "%s\n\n\n" "----> Building static site from ${repository}-docs"
+  printf "%s\n\n\n" "----> Building static site from ${ENDOCS}"
   mkdocs build -d $STATICPATH --clean
 fi
 
@@ -120,7 +125,7 @@ do
   # Check and creat the static folder inside the static site
   if [ ! -d $TMPSTATICML ] || [ $force == 1 ]; then
     if [ -d "$TMPSTATICML" ]; then rm -Rf $TMPSTATICML; fi
-    printf "%s\n" "----> Creating static folder inside ${repository}-docs static"
+    printf "%s\n" "----> Creating static folder inside ${ENDOCS_NAME} static"
     mkdir $TMPSTATICML
   fi
   #
@@ -156,20 +161,20 @@ do
 
   # Clone the corresponding Docs-ML
   cd $TMPBUILDML
-  TMPDOCSML=$TMPBUILDML/${repository}-docs-${ML_SITES[i]}
+  TMPDOCSML=$TMPBUILDML/${ENDOCS_NAME}-${ML_SITES[i]}
   if [ ! -d $TMPDOCSML ]
   then
-    printf "%s\n" "----> Cloning ${repository}-docs-${ML_SITES[i]} repo owner ${ML_OWNER[i]} - branch ${ML_BRANCH[i]}"
-    git clone https://github.com/${ML_OWNER[i]}/${repository}-docs-${ML_SITES[i]} -b ${ML_BRANCH[i]}
+    printf "%s\n" "----> Cloning ${ENDOCS_NAME}-${ML_SITES[i]} repo DOCS ${ML_DOCS[i]} - branch ${ML_BRANCH[i]}"
+    git clone https://github.com/${ML_DOCS[i]} -b ${ML_BRANCH[i]}
   else
-    printf "%s\n" "----> No cloning needed, pulling latest changes from ${repository}-docs-${ML_SITES[i]}"
+    printf "%s\n" "----> No cloning needed, pulling latest changes from ${ENDOCS_NAME}-${ML_SITES[i]}"
     cd $TMPDOCSML
     git merge origin/master
   fi
   
   # Create Symlinks to Docs
   # These symlinks depends if legacy or revamp
-  printf "%s\n" "----> Creating symlinks for files inside ${repository}-docs"
+  printf "%s\n" "----> Creating symlinks for files inside ${ENDOCS_NAME}"
   [ ! -L $TMPDOCSML/variables.yml ] && ln -s $DOCSPATH/variables.yml $TMPDOCSML/variables.yml
   [ ! -L $TMPDOCSML/images ] && ln -s $DOCSPATH/images $TMPDOCSML/images
   [ ! -L $TMPDOCSML/js ] && ln -s $DOCSPATH/js $TMPDOCSML/js

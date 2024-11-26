@@ -26,23 +26,24 @@ chmod u+x ./buildSite.sh
 With the right execution permissions, run:
 
 ```
-./buildSite.sh -d
+./buildSite.sh -m papermoonio/wormhole-mkdocs -b main  -o wormhole-foundation/wormhole-docs -e main
 ```
 
-Where `-d` can be either `-d moonbeam` or `-d tanssi`. 
+You need to provide the flag:
+ - m <repository> -> mkdocs repository to clone, for example, `papermoonio/wormhole-mkdocs`
+ - b \"<mkdocs_branch>\" -> mkdocs branch to clone, for example, `main`
+ - o \"<en_DOCS>\" ->  docs repository to clone, for example, `wormhole-foundation/wormhole-docs`
+ - e \"<en_branch>\" -> docs branch to clone, for example, `main`
 
-You can also provide the flag:
- - `-f` to force a new build
- - `-m "<branch_name"` for a specific branch in the MkDocs repo, default is moonbeam: `master` - tanssi: `main`
- - `-e  "<branch_name>"` to build a specific branch in the EN repo, default is moonbeam: `master` - tanssi: `main`
- - `-o "<en_owner>"` to build from a specific `moonbeam-docs` repo owner, default is moonbeam: `moonbeam-foundation` - tanssi: `moondance-labs`
- - `-c "<branch_name>"` to build a specific branch in the CN repo, default is moonbeam: `master`
- - `-s "<cn_owner>"` to build from a specific `moonbeam-docs-cn` repo owner, default is moonbeam: `moonbeam-foundation`
+Optional flags for docs with multiple languages:
+
+ - s \"<cn_DOCS>\" ->  chinese docs repository to clone, for example, `moonbeam-foundation/moonbeam-docs-cn`
+ - c \"<cn_branch>\" -> cn docs branch to clone, for example, `main`
 
 For example:
 
 ```
-./buildSite.sh -f -m "master" -e "master" -o "moonbeam-foundation" -c "master" -s "moonbeam-foundation"
+./buildSite.sh -f -m papermoonio/moonbeam-mkdocs -b "master" -o "moonbeam-foundation/moonbeam-docs" -e "master" -s "moonbeam-foundation/moonbeam-docs-cn" -c "master"
 ```
 
 ## Serving the Static Site
