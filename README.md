@@ -28,6 +28,11 @@ With the right execution permissions, run:
 ```
 ./buildSite.sh -m papermoonio/wormhole-mkdocs -b main  -o wormhole-foundation/wormhole-docs -e main
 ```
+If you are a ***Mac*** user, run the following command instead:
+```
+chmod u+x ./buildSiteMac.sh
+./buildSiteMac.sh
+```
 
 You need to provide the flag:
  - m <repository> -> mkdocs repository to clone, for example, `papermoonio/wormhole-mkdocs`
