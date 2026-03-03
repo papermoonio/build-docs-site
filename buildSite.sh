@@ -149,6 +149,16 @@ do
     [ ! -d $TMPBUILDML/material-overrides ] && gcp -Rs $MKDOCSPATH/material-overrides/ $TMPBUILDML
   fi 
 
+  # Create symlinks for layouts (if the directory exists)
+  if [ -d $MKDOCSPATH/layouts ]; then
+    printf "%s\n" "----> Creating layouts symlinks"
+    if [ "$OS" = "Linux" ]; then
+      [ ! -d $TMPBUILDML/layouts ] && cp -Rs $MKDOCSPATH/layouts/ $TMPBUILDML
+    else
+      [ ! -d $TMPBUILDML/layouts ] && gcp -Rs $MKDOCSPATH/layouts/ $TMPBUILDML
+    fi
+  fi
+
   # Copy the ML mkdocs specific content
   # This symlink depends if legacy or revamp
   printf "%s\n" "----> Creating mkdocs.yml symlink"
